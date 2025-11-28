@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The TRPL Project | Total Reciprocity Public License</title>
+    
+    <!-- React & ReactDOM (Development versions for better error logging, switch to production for live if desired) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FAFAFA; color: #1e293b; }
+        .font-serif { font-family: 'Merriweather', serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        html { scroll-behavior: smooth; }
+        
+        /* Custom scrollbar for license text area */
+        .license-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .license-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .license-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .license-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICONS (Inline SVGs for stability) ---
+        const IconShield = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+        const IconAlert = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>;
+        const IconCopy = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>;
+        const IconCheck = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>;
+        const IconFile = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>;
+        const IconServer = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>;
+        const IconCpu = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>;
+        const IconHeart = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
+        const IconGithub = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>;
+
+        // --- DATA ---
+        const TRPL_TEXT = `Total Reciprocity Public License (TRPL)
+Version 1.0, November 2025
+
+Preamble
+The intent of the Total Reciprocity Public License (TRPL) is to guarantee radical freedom and transparency in software architecture and functional generation, without infringing on the creative rights of the end-user regarding their personal content. While other licenses allow proprietary software to hide behind network APIs, microservices, or internal servers, this License ensures that any system deriving functional value from this software contributes back to the commons.
+
+1. Definitions
+
+"The Program" refers to any copyrightable work licensed under this License.
+
+"Source Code" refers to the preferred form of the work for making modifications to it.
+* For software, this includes all code, scripts, interface definitions, and build instructions.
+* For Machine Learning, this explicitly includes the model architecture, all training data sets (or detailed recipes to recreate them), and the final trained parameters (weights, biases, and hyperparameters).
+
+"Standard Interface" refers to a standardized means of communication (such as HTTP, TCP/IP, or standard library calls), but specifically excludes the semantics of the data exchanged.
+
+"Intimate Communication" refers to any interaction where data, control signals, or logic is exchanged between the Program and another work to achieve a unified functional goal. This includes, but is not limited to:
+* Static or dynamic linking.
+* Remote Procedure Calls (RPC).
+* RESTful, GraphQL, or other API interactions where the calling software depends on the specific logic or data structures of the Program.
+* Shared memory or inter-process communication (IPC).
+
+"Functional Output" refers to output generated by the Program that is intended to be executed, compiled, interpreted, or used as a structural component of a software system. This includes source code, object code, AI model weights, database schemas, and logic scripts.
+
+"Content Output" refers to output generated by the Program that is intended for human consumption or data storage, and does not contain executable logic or functional structures derived from the Program. This includes audio files, video files, images, text documents, spreadsheets, and raw data sets.
+
+"Deployment" means the use of the Program—internally or externally—for any purpose other than personal experimentation. This includes running the Program on a server, within a corporation, or providing it as a SaaS (Software as a Service).
+
+2. Source Code Availability
+
+You may copy, distribute, and modify the Program. However, if you Deploy the Program (internally or publicly), you must make the Corresponding Source Code available to:
+1. All users interacting with the Program remotely.
+2. All individuals within your organization who use the Program.
+3. The general public, via a standard network repository.
+
+3. The "Intimate Communication" Clause (API & Microservices)
+
+If you create a system where proprietary software engages in Intimate Communication with the Program, that proprietary software becomes part of a "Combined Work."
+
+Consequently, you must release the Source Code for the entire Combined Work under the terms of this License. Segregating the Program into a separate container, microservice, or server wrapper does not exempt you from this requirement if the services are functionally coupled.
+
+4. Output Reciprocity and Exceptions
+
+4.1 Functional Output
+If the Program is used to generate Functional Output (e.g., a compiler generating binaries, a transpiler generating code, or an ML trainer generating Model Weights), that output is considered a derivative work of the Program.
+* You must license such Functional Output under this License or a compatible Free Software license.
+* You cannot claim exclusive proprietary rights over Functional Output generated by the Program.
+
+4.2 Creative and Personal Content Exception
+Content Output created using the Program is NOT subject to the terms of this License. The user retains full ownership and copyright of their Content Output.
+* Exception Example: Music created by a synthesizer, text documents created by an editor, or spreadsheets created by a calculation engine are owned by the user.
+
+Limitation: This exception does not apply if the Content Output embeds portions of the Program's Source Code (e.g., a runtime library or macro scripts) required for the content to function. In that case, the embedded code remains subject to this License.
+
+5. Artificial Intelligence and Machine Learning
+
+If the Program is used to train, fine-tune, or execute an AI model:
+1. Training: You must release the full Source Code of the model (including Weights and Training Data) if you Deploy the model. The resulting Weights are considered Functional Output.
+2. Inference: You cannot keep the model proprietary if it relies on the Program for inference logic.
+3. Generation: Raw media or text generated by the model is considered Content Output and belongs to the user, provided it does not contain Functional Output.
+
+6. Installation Information
+
+If you Deploy the Program on hardware (consumer electronics, IoT devices, or cloud infrastructure), you must provide "Installation Information." This includes all authorization keys, cryptographic signatures, or passwords required to install and execute modified versions of the Program on that specific hardware.
+
+7. No Additional Restrictions
+
+You may not impose any further restrictions on the exercise of the rights granted or affirmed under this License. For example, you may not impose patent litigation clauses, non-compete clauses, or usage restrictions (e.g., "non-commercial use only"). This License is the complete agreement.
+
+8. Termination
+
+Any attempt to copy, modify, sub-license, or Deploy the Program or the Combined Work except as expressly provided under this License automatically terminates your rights under this License.`;
+
+        // --- COMPONENTS ---
+
+        const Nav = () => (
+            <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-red-700 rounded-md flex items-center justify-center text-white font-bold">TR</div>
+                        <span className="font-bold text-slate-800 text-lg">The TRPL Project</span>
+                    </div>
+                    <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                        <a href="#about" className="hover:text-red-700 transition-colors">About</a>
+                        <a href="#license" className="hover:text-red-700 transition-colors">Read the License</a>
+                        <a href="#faq" className="hover:text-red-700 transition-colors">FAQ</a>
+                        <a href="#usage" className="hover:text-red-700 transition-colors">Usage Guide</a>
+                    </div>
+                    <a href="https://github.com" target="_blank" className="text-slate-500 hover:text-black transition-colors">
+                        <IconGithub />
+                    </a>
+                </div>
+            </nav>
+        );
+
+        const Hero = () => {
+            const [copied, setCopied] = useState(false);
+
+            const copyLicense = () => {
+                const tempElement = document.createElement('textarea');
+                tempElement.value = TRPL_TEXT;
+                document.body.appendChild(tempElement);
+                tempElement.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempElement);
+                
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            return (
+                <section className="bg-white border-b border-slate-200">
+                    <div className="max-w-5xl mx-auto px-4 py-20 sm:px-6 lg:px-8 text-center">
+                        <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-semibold tracking-wide uppercase mb-6 border border-red-200">
+                            The "Poison Pill" for Closed Source
+                        </div>
+                        <h1 className="text-4xl sm:text-6xl font-black text-slate-900 mb-6 tracking-tight">
+                            Total Reciprocity<br className="hidden sm:block" /> Public License
+                        </h1>
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+                            A high-reciprocity copyleft license designed to close the SaaS, API, and Code Generation loopholes. 
+                            <span className="font-semibold text-slate-900"> If they use your code, they must share theirs.</span>
+                        </p>
+                        
+                        <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            <a href="#license" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-lg text-white bg-red-700 hover:bg-red-800 md:text-lg shadow-lg hover:shadow-xl transition-all">
+                                <span className="mr-2"><IconFile /></span>
+                                Read the License
+                            </a>
+                            <button onClick={copyLicense} className="inline-flex items-center justify-center px-8 py-4 border border-slate-300 text-base font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 md:text-lg transition-colors">
+                                <span className={`mr-2 ${copied ? "text-green-600" : ""}`}>
+                                    {copied ? <IconCheck /> : <IconCopy />}
+                                </span>
+                                {copied ? "Copied to Clipboard" : "Copy License Text"}
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const AlertBox = () => (
+            <div className="max-w-4xl mx-auto px-4 mt-[-2rem] mb-12 relative z-10">
+                <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg shadow-md flex flex-col sm:flex-row gap-4">
+                    <div className="flex-shrink-0 text-amber-500">
+                        <IconAlert />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-amber-800 mb-2">⚠️ High-Risk License Warning</h3>
+                        <p className="text-amber-700 text-sm leading-relaxed">
+                            This software is <strong>NOT</strong> licensed under MIT or Apache. TRPL v1.0 is an experimental, aggressive copyleft license. 
+                            It treats <strong>API interactions</strong> and <strong>Functional Output</strong> (like generated code or AI weights) as derivative works.
+                            Proprietary use in microservices or SaaS stacks will trigger a requirement to open-source your entire stack.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Features = () => (
+            <section id="about" className="py-16 bg-slate-50">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-slate-900">Why we need stronger copyleft</h2>
+                        <p className="mt-4 text-slate-600">The AGPL was built for the web. TRPL is built for the era of Cloud APIs and AI.</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-8">
+                        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 hover:border-red-200 transition-colors">
+                            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-6 text-red-600">
+                                <IconServer />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">The API Wall</h3>
+                            <p className="text-slate-600 text-sm">Companies hide open source code behind microservices. TRPL treats API calls ("Intimate Communication") as linking, forcing the caller to be open.</p>
+                        </div>
+                        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 hover:border-red-200 transition-colors">
+                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6 text-blue-600">
+                                <IconCpu />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">AI & ML Training</h3>
+                            <p className="text-slate-600 text-sm">If you train on TRPL code, the model weights and training data become "Functional Output" and must be shared. No black box models.</p>
+                        </div>
+                        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 hover:border-red-200 transition-colors">
+                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6 text-green-600">
+                                <IconHeart />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">Artists are Safe</h3>
+                            <p className="text-slate-600 text-sm">We distinguish between "Functional" and "Content" output. Music, art, and novels created with TRPL tools are 100% yours.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const LicenseText = () => {
+            const [copied, setCopied] = useState(false);
+             const copyLicense = () => {
+                const tempElement = document.createElement('textarea');
+                tempElement.value = TRPL_TEXT;
+                document.body.appendChild(tempElement);
+                tempElement.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempElement);
+
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            return (
+                <section id="license" className="py-20 bg-white">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-3xl font-bold text-slate-900">License Text</h2>
+                            <button onClick={copyLicense} className="text-sm font-medium text-red-700 hover:text-red-800 flex items-center bg-red-50 px-3 py-2 rounded-md transition-colors">
+                                <span className={`mr-2 ${copied ? "text-green-600" : ""}`}>
+                                    {copied ? <IconCheck /> : <IconCopy />}
+                                </span>
+                                {copied ? "Copied" : "Copy Raw Text"}
+                            </button>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-8 sm:p-12 font-serif shadow-inner overflow-x-auto license-scroll">
+                            <pre className="whitespace-pre-wrap legal-text">{TRPL_TEXT}</pre>
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        const FAQ = () => {
+            const items = [
+                {
+                    q: "Can I use this for a commercial product?",
+                    a: "Yes, you can sell TRPL software. However, you must provide the full source code to your customers, and you cannot prevent them from sharing it further."
+                },
+                {
+                    q: "I am a musician using a TRPL synth. Do I own my song?",
+                    a: "Yes. Clause 4.2 explicitly protects 'Content Output'. Your music, documents, and art are yours. The license only triggers if you build *software* or *functional tools* with it."
+                },
+                {
+                    q: "What if I wrap the code in a Docker container?",
+                    a: "Clause 3 ('Intimate Communication') prevents this. If your proprietary app talks to the TRPL container to function, your app is part of the 'Combined Work' and must be open sourced."
+                },
+                 {
+                    q: "Is this OSI approved?",
+                    a: "No. The TRPL restricts specific uses (walled gardens) and extends definitions of 'linking' beyond standard interpretations. It is a 'Source Available' or 'Radical Copyleft' license."
+                }
+            ];
+
+            return (
+                <section id="faq" className="py-16 bg-slate-50">
+                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-3xl font-bold text-slate-900 mb-10 text-center">Frequently Asked Questions</h2>
+                        <div className="space-y-6">
+                            {items.map((item, index) => (
+                                <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+                                    <h3 className="text-lg font-bold text-slate-900 mb-2">{item.q}</h3>
+                                    <p className="text-slate-600">{item.a}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Usage = () => (
+            <section id="usage" className="py-20 bg-white border-t border-slate-200">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-bold text-slate-900 mb-8">How to Apply</h2>
+                    <p className="text-slate-600 mb-6">Create a file named <code className="bg-slate-100 px-2 py-1 rounded text-red-600 font-mono text-sm">LICENSE</code> in your repository root and paste the text above. Then, add this badge to your README:</p>
+                    
+                    <div className="bg-slate-900 rounded-lg p-6 font-mono text-sm text-slate-300 overflow-x-auto mb-8">
+                        <span className="text-purple-400">## License</span>
+                        <br/><br/>
+                        This project is licensed under the <span className="text-yellow-300">Total Reciprocity Public License (TRPL) v1.0</span>.<br/>
+                        <br/>
+                        <span className="text-slate-500">&gt; [!IMPORTANT]</span><br/>
+                        <span className="text-slate-500">&gt;</span> This is a high-reciprocity license. If you use this software in a proprietary stack via API,<br/>
+                        <span className="text-slate-500">&gt;</span> you must open-source your stack. Creative content (art/music) is exempt.
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Footer = () => (
+            <footer className="bg-slate-900 text-slate-400 py-12">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div className="mb-4">
+                        <span className="font-bold text-slate-100 text-lg">The TRPL Project</span>
+                    </div>
+                    <p className="text-sm mb-6 max-w-xl mx-auto">
+                        An experimental legal instrument for the post-SaaS era. 
+                        Provided "as-is" without warranty.
+                    </p>
+                    <div className="text-xs text-slate-600">
+                        &copy; 2025 The TRPL Project. Content licensed under CC-BY-SA 4.0.
+                    </div>
+                </div>
+            </footer>
+        );
+
+        // --- MAIN APP ---
+        const App = () => {
+            return (
+                <div className="min-h-screen">
+                    <Nav />
+                    <Hero />
+                    <AlertBox />
+                    <Features />
+                    <LicenseText />
+                    <FAQ />
+                    <Usage />
+                    <Footer />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
