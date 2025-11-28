@@ -17,6 +17,7 @@ The text of the **Total Reciprocity Public License (TRPL)** is licensed under th
 
 ### How to apply this license to your new programs
 To apply the TRPL to your program, attach the following notices to the start of each source file:
+
 [one line to give the program's name and a brief idea of what it does.]
 Copyright (C) [year] [name of author]
 
@@ -33,4 +34,5 @@ Total Reciprocity Public License for more details.
 You should have received a copy of the Total Reciprocity Public License
 along with this program.  If not, see https://github.com/trplfoundation/trpl-license/blob/main/LICENSE
 
-### The Contribution Model: Distributed copyright (No CLA), ensuring the project stays free forever. see 
+### The Contribution Model: 
+Distributed copyright (No CLA), ensuring the project stays free forever. see https://github.com/trplfoundation/trpl-license/blob/main/CONTRIBUTING.md
