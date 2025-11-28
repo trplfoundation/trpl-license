@@ -1,7 +1,7 @@
 ## Copyright & Licensing
 
 ### The Website Code
-The source code of this website (HTML, CSS, React) is licensed under the **[TRPL v1.0]**.
+The source code of this website is licensed under the **[TRPL v1.0]**.
 
 ### The TRPL License Text
 The text of the **Total Reciprocity Public License (TRPL)** is licensed under the **Creative Commons Attribution-NoDerivatives 4.0 International License (CC BY-ND 4.0)**.
